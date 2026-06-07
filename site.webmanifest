@@ -4,19 +4,19 @@
   "icons": [
     {
       "src": "icon.png",
-      "type": "image/png",
+      "type": "image/jpeg",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
       "src": "icon.png",
-      "type": "image/png",
+      "type": "image/jpeg",
       "sizes": "384x384",
       "purpose": "any maskable"
     },
     {
       "src": "icon.png",
-      "type": "image/png",
+      "type": "image/jpeg",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
