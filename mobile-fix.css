@@ -1,0 +1,233 @@
+/* 
+ * ShopHub 移动端修复补丁
+ * 修复手机端显示问题
+ */
+
+/* ========== 问题1: 整改确认人位置错乱 ========== */
+
+/* 在小屏幕上强制form-row改为垂直布局 */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  
+  .rectification-details .form-group {
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+  
+  /* 确保整改确认人输入框占满宽度 */
+  .rectification-confirm,
+  .rectification-time {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* 整改详情整体优化 */
+  .rectification-details {
+    padding: 10px !important;
+  }
+  
+  .rectification-details .form-group label {
+    font-size: 13px !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .rectification-details .form-input {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+}
+
+/* ========== 问题2: 检查详情照片位置错乱 ========== */
+
+/* 优化照片显示 - 缩小并居中 */
+.view-photo {
+  max-width: 100% !important;
+  max-height: 150px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 8px !important;
+  margin: 10px 0 !important;
+  display: block !important;
+}
+
+/* 查看详情的内容布局优化 */
+.view-detail-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  margin-bottom: 10px !important;
+}
+
+.view-detail-row label {
+  font-weight: 600 !important;
+  color: #666 !important;
+  font-size: 13px !important;
+}
+
+.view-detail-content {
+  padding-left: 0 !important;
+}
+
+/* ========== 问题3: 数据历史为0 - 确保统计正确 ========== */
+
+/* 统计卡片样式优化 */
+.history-overview .stats-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.stat-card {
+  min-height: 80px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.stat-number {
+  font-size: 28px !important;
+}
+
+/* ========== 问题4: Excel导出功能修复 ========== */
+
+/* 导出按钮在移动端优化 */
+@media (max-width: 768px) {
+  .records-actions {
+    flex-direction: column !important;
+  }
+  
+  .btn-export-all,
+  .btn-clear-records {
+    width: 100% !important;
+  }
+}
+
+/* ========== 通用移动端优化 ========== */
+
+/* 恢复按钮样式 */
+.btn-restore {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-restore:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 768px) {
+  .btn-restore {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+/* 模态框宽度优化 */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 10px auto !important;
+  }
+  
+  .modal-body {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 表单输入框优化 */
+  .form-input {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+  
+  /* 按钮优化 */
+  button, .btn-save, .btn-submit {
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
+  
+  /* 问题卡片优化 */
+  .problem-item {
+    padding: 10px !important;
+  }
+  
+  .problem-title {
+    font-size: 14px !important;
+  }
+  
+  /* 照片上传按钮优化 */
+  .btn-upload-photo {
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* 整改详情优化 */
+  .rectification-details {
+    padding: 10px !important;
+  }
+  
+  .rectification-header h5 {
+    font-size: 14px !important;
+  }
+}
+
+/* 查看记录详情优化 */
+@media (max-width: 768px) {
+  .view-record-content {
+    padding: 10px !important;
+  }
+  
+  .view-section {
+    margin-bottom: 15px !important;
+  }
+  
+  .view-section h3 {
+    font-size: 15px !important;
+  }
+  
+  .view-info-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .view-problem-item {
+    padding: 10px !important;
+  }
+}
+
+/* Toast 提示优化 */
+.toast {
+  max-width: 90% !important;
+  left: 5% !important;
+  right: 5% !important;
+}
+
+/* 底部导航优化 */
+@media (max-width: 768px) {
+  .nav-bar {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  
+  .nav-item {
+    padding: 8px 0 !important;
+  }
+  
+  .nav-item svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  
+  .nav-item div {
+    font-size: 11px !important;
+  }
+}

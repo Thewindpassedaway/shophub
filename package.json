@@ -1,0 +1,29 @@
+{
+  "name": "shophub",
+  "version": "1.0.0",
+  "description": "ShopHub - 店铺管理平台",
+  "private": true,
+  "keywords": [
+    "shop",
+    "management",
+    "shophub"
+  ],
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && nodemon server.js"
+  },
+  "dependencies": {
+    "@cloudbase/js-sdk": "^1.8.4",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "mysql2": "^3.9.7",
+    "qcloud-cos-sts": "^3.1.3"
+  },
+  "main": "backend/server.js",
+  "type": "commonjs"
+}

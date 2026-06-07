@@ -1,0 +1,45 @@
+# ShopHub 项目文件
+node_modules/
+.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.log
+*.tmp
+*.temp
+
+# 备份文件
+backup_*.sql
+
+# 测试文件
+test-temp-key.html
+
+# 文档(可选)
+Oracle云免费部署.md
+ngrok部署指南.md
+手机安装指南.md
+手机测试快速指南.md
+腾讯云临时密钥配置说明.md
+安装指南.md
+
+# 部署脚本
+deploy-oracle.sh
+启动ngrok.bat
+启动临时密钥方案.bat
+get-ip-address.bat
+setup-mobile-access.bat
+配置手机访问.bat
+获取IP地址.bat
+
+# Git
+.git/

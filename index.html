@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ShopHub - 店铺管理平台</title>
+  <meta name="description" content="ShopHub店铺信息管理系统">
+
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="mobile-fix.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <meta name="theme-color" content="#667eea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+      padding-bottom: 70px;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .login-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .login-logo .emoji {
+      font-size: 56px;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .login-logo h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .login-logo p {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      background: #fafafa;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .login-btn:active {
+      transform: scale(0.98);
+    }
+
+    .login-error {
+      color: #F44336;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .login-error.show {
+      display: block;
+    }
+
+    /* 安装提示样式 */
+    .install-prompt {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 15px;
+      right: 15px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 999;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .install-prompt.show {
+      display: block;
+    }
+
+    .install-prompt-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .install-prompt-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .install-prompt-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .install-prompt-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .install-prompt-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .install-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .install-btn:active {
+      transform: scale(0.98);
+    }
+
+    .install-later-btn {
+      flex: 1;
+      padding: 12px;
+      background: #f0f0f0;
+      color: #666;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8559a5 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .header-small {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    .search-bar {
+      background: white;
+      padding: 15px;
+      margin: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .grade-section {
+      margin: 0 15px 20px;
+    }
+
+    .grade-title {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+      padding-left: 5px;
+      font-weight: 500;
+    }
+
+    .grade-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .grade-btn {
+      width: 100px;
+      height: 90px;
+      border: none;
+      border-radius: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grade-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+    }
+
+    .grade-btn span {
+      font-size: 12px;
+      margin-top: 5px;
+      font-weight: normal;
+      opacity: 0.95;
+    }
+
+    .grade-a {
+      background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    }
+
+    .grade-b {
+      background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
+    }
+
+    .grade-c {
+      background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
+    }
+
+    .grade-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .grade-btn.selected {
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.8), 0 8px 25px rgba(0,0,0,0.25);
+      transform: scale(1.05);
+    }
+
+    .grade-a.selected {
+      box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3), 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+
+    .grade-b.selected {
+      box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3), 0 8px 25px rgba(33, 150, 243, 0.4);
+    }
+
+    .grade-c.selected {
+      box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.3), 0 8px 25px rgba(255, 152, 0, 0.4);
+    }
+
+    .stats-bar {
+      padding: 0 15px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .shop-list {
+      padding: 0 15px;
+    }
+
+    .shop-item {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      border: 1px solid #f0f0f0;
+    }
+
+    .shop-item-left {
+      flex: 1;
+    }
+
+    .shop-item-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .shop-item-number {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .shop-grade-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .grade-badge-a {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    }
+
+    .grade-badge-b {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    }
+
+    .grade-badge-c {
+      background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .nav-item {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      color: #999;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      border: none;
+      background: none;
+    }
+
+    .nav-item.active {
+      color: #667eea;
+    }
+
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+    }
+
+    /* 管理页面样式 */
+    .admin-section {
+      background: white;
+      margin: 15px;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-icon {
+      font-size: 20px;
+    }
+
+    .section-header h3 {
+      font-size: 16px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .admin-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .admin-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .admin-btn:active {
+      transform: scale(0.98);
+    }
+
+    .admin-btn.export-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    }
+
+    .grade-btn span {
+      font-size: 12px;
+      margin-top: 5px;
+      font-weight: normal;
+      opacity: 0.95;
+    }
+
+    /* 管理页面额外样式 */
+    .admin-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8559a5 100%);
+    }
+
+    .btn-icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-add:active {
+      transform: scale(0.98);
+    }
+
+    .manage-shop-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shop-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-edit, .btn-delete {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-edit {
+      background: #2196F3;
+      color: white;
+    }
+
+    .btn-review {
+      background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .btn-review:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 4px rgba(255, 152, 0, 0.4);
+    }
+
+    .btn-delete {
+      background: #F44336;
+      color: white;
+    }
+
+    .btn-check {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+      color: white;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-check:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 4px rgba(76, 175, 80, 0.4);
+    }
+
+    /* 模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* 用户列表样式 */
+    .user-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 2px solid #f0f0f0;
+      background: #f9f9f9;
+    }
+
+    .user-list-header h3 {
+      font-size: 16px;
+      color: #333;
+      margin: 0;
+    }
+
+    .btn-add {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add:active {
+      transform: scale(0.95);
+    }
+
+    .btn-cancel {
+      width: 48%;
+      padding: 12px;
+      background: #f0f0f0;
+      color: #666;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .form-actions .btn-save {
+      width: 52%;
+    }
+
+    /* 检查表单样式 */
+    .check-basic-info {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .check-basic-info h4,
+    .check-problems-section h4 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .check-problems-section {
+      margin-top: 20px;
+    }
+
+    .btn-add-problem {
+      width: 100%;
+      padding: 12px;
+      background: white;
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      color: #667eea;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add-problem:hover {
+      background: #f0f4ff;
+    }
+
+    .problem-item {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+    }
+
+    .problem-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .problem-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .btn-delete-problem {
+      padding: 6px 12px;
+      background: #F44336;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-delete-problem:active {
+      transform: scale(0.95);
+    }
+
+    .photo-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-upload-photo {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: all 0.2s ease;
+    }
+
+    .btn-upload-photo:active {
+      transform: scale(0.95);
+    }
+
+    .photo-preview {
+      margin-top: 10px;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .radio-label input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    
+    /* 整改详情样式 */
+    .rectification-details {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      border: 1px solid #b3d9ff;
+    }
+    
+    .rectification-header {
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4CAF50;
+    }
+    
+    .rectification-header h5 {
+      font-size: 15px;
+      color: #2e7d32;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .rectification-header h5:before {
+      content: '✓';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: #4CAF50;
+      color: white;
+      border-radius: 50%;
+      font-size: 14px;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .user-username {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .user-role {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .role-admin {
+      background: #FFF3E0;
+      color: #F57C00;
+    }
+
+    .role-user {
+      background: #E3F2FD;
+      color: #1976D2;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .system-user {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* 数据历史样式 */
+    .history-item {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-info {
+      flex: 1;
+    }
+
+    .history-action {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .history-detail {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .history-meta {
+      text-align: right;
+    }
+
+    .history-user {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .history-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    /* 记录页面样式 */
+    .records-filter {
+      background: white;
+      padding: 15px;
+      margin: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .filter-group label {
+      font-size: 12px;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .records-list {
+      padding: 0 15px;
+    }
+
+    .record-item {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .record-shop {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .record-info {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .records-tabs {
+      display: flex;
+      background: white;
+      margin: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      background: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #666;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .tab-btn:active {
+      transform: scale(0.98);
+    }
+
+    .record-problems {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .problem-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+    }
+
+    .problem-summary:last-child {
+      margin-bottom: 0;
+    }
+
+    .problem-main {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .problem-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .problem-desc {
+      font-size: 13px;
+      color: #333;
+    }
+
+    .problem-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .risk-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .risk-high {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .risk-medium {
+      background: #FFF3E0;
+      color: #EF6C00;
+    }
+
+    .risk-low {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-completed {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-pending {
+      background: #FFF3E0;
+      color: #EF6C00;
+    }
+
+    .record-date {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .record-actions button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .record-actions button:active {
+      transform: scale(0.95);
+    }
+
+    .records-actions {
+      display: flex;
+      gap: 10px;
+      margin: 0 15px 15px;
+    }
+
+    .btn-export-all,
+    .btn-clear-records {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-export-all {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+      color: white;
+    }
+
+    .btn-clear-records {
+      background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+      color: white;
+    }
+
+    .btn-export-all:active,
+    .btn-clear-records:active {
+      transform: scale(0.95);
+    }
+
+    .unchecked-item {
+      border-left: 4px solid #FF9800;
+    }
+
+    /* Toast 提示样式 */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 280px;
+      max-width: 400px;
+      animation: slideDown 0.3s ease;
+      pointer-events: auto;
+    }
+
+    .toast.toast-success {
+      border-left: 4px solid #4CAF50;
+    }
+
+    .toast.toast-error {
+      border-left: 4px solid #F44336;
+    }
+
+    .toast.toast-warning {
+      border-left: 4px solid #FF9800;
+    }
+
+    .toast.toast-info {
+      border-left: 4px solid #2196F3;
+    }
+
+    .toast-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .toast-close:hover {
+      color: #333;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Toast 提示容器 -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- 确认对话框 -->
+  <div id="confirmModal" class="modal confirm-modal">
+    <div class="confirm-dialog">
+      <div class="confirm-icon">
+        <span class="icon-warning">️</span>
+      </div>
+      <div class="confirm-title">确认操作</div>
+      <div class="confirm-message" id="confirmMessage">确定要执行此操作吗？</div>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" id="confirmCancel">取消</button>
+        <button class="btn-confirm-ok" id="confirmOk">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 安装提示 -->
+  <div id="installPrompt" class="install-prompt">
+    <div class="install-prompt-header">
+      <div class="install-prompt-icon">📱</div>
+      <div>
+        <div class="install-prompt-title">安装ShopHub到手机</div>
+        <div class="install-prompt-desc">添加到主屏幕,像原生App一样使用</div>
+      </div>
+    </div>
+    <div class="install-prompt-actions">
+      <button class="install-later-btn" onclick="closeInstallPrompt()">稍后</button>
+      <button class="install-btn" onclick="installApp()">立即安装</button>
+    </div>
+  </div>
+
+  <div id="app-container">
+    <div class="loading">
+      <p>系统加载中...</p>
+    </div>
+  </div>
+
+  <script>
+    // PWA安装逻辑
+    let deferredPrompt;
+    
+    // 监听安装事件
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // 显示安装提示
+      setTimeout(() => {
+        document.getElementById('installPrompt').classList.add('show');
+      }, 2000);
+    });
+    
+    // 安装应用
+    async function installApp() {
+      if (!deferredPrompt) {
+        // 如果不支持自动安装,显示安装指南
+        window.location.href = 'install-guide.html';
+        return;
+      }
+      
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        console.log('用户接受了安装提示');
+        closeInstallPrompt();
+      } else {
+        console.log('用户拒绝了安装提示');
+        closeInstallPrompt();
+      }
+      
+      deferredPrompt = null;
+    }
+    
+    // 关闭安装提示
+    function closeInstallPrompt() {
+      document.getElementById('installPrompt').classList.remove('show');
+    }
+    
+    // 注册Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('ServiceWorker注册成功:', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker注册失败:', error);
+          });
+      });
+    }
+  </script>
+
+  <script src="js/temp-key-manager.js"></script>
+  <script src="js/app-management.js"></script>
+</body>
+</html>
