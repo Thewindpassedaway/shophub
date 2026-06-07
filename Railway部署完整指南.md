@@ -83,14 +83,14 @@ MYSQL_DATABASE=shopdata-d7g3puonddd82282c
 PORT=3000
 NODE_ENV=production
 CLOUDBASE_ENV=shopdata-d7g3puonddd82282c
-TENCENT_SECRET_ID=AKIDukP0Ro07IMLOJGk37xYv4yJTPI2Ys0vm
-TENCENT_SECRET_KEY=nNr7A5phLkxxkLkxveR5ZzOd6MYIvKhw
+TENCENT_SECRET_ID=你的腾讯云SecretID
+TENCENT_SECRET_KEY=你的腾讯云SecretKey
 ```
 
 ⚠️ **注意**:
 - 每个变量单独添加
 - 不要加引号
-- 直接复制粘贴值
+- 直接复制粘贴值(从你的.env文件中获取)
 - 确保没有多余空格
 
 #### 3.3 配置启动命令
@@ -233,8 +233,8 @@ https://你的应用地址.railway.app
 | PORT | 3000 |
 | NODE_ENV | production |
 | CLOUDBASE_ENV | shopdata-d7g3puonddd82282c |
-| TENCENT_SECRET_ID | AKIDukP0Ro07IMLOJGk37xYv4yJTPI2Ys0vm |
-| TENCENT_SECRET_KEY | nNr7A5phLkxxkLkxveR5ZzOd6MYIvKhw |
+| TENCENT_SECRET_ID | 你的腾讯云SecretID |
+| TENCENT_SECRET_KEY | 你的腾讯云SecretKey |
 
 ---
 
