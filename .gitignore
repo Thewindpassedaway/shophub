@@ -1,10 +1,16 @@
-# ShopHub 项目文件
+# 依赖
 node_modules/
-.env
-backend/uploads/*
-!backend/uploads/.gitkeep
+package-lock.json
 
-# IDE
+# 环境配置(包含敏感信息)
+.env
+.env.local
+.env.*.local
+
+# 数据库备份
+backup_*.sql
+
+# IDE配置
 .idea/
 .vscode/
 *.iml
@@ -13,13 +19,13 @@ backend/uploads/*
 .DS_Store
 Thumbs.db
 
+# 上传文件
+backend/uploads/*
+!backend/uploads/.gitkeep
+
 # 临时文件
 *.log
 *.tmp
-*.temp
-
-# 备份文件
-backup_*.sql
 
 # 测试文件
 test-temp-key.html
@@ -31,15 +37,18 @@ ngrok部署指南.md
 手机测试快速指南.md
 腾讯云临时密钥配置说明.md
 安装指南.md
+Vercel+腾讯云MySQL部署指南.md
+免费部署方案对比.md
+部署检查清单.md
 
 # 部署脚本
 deploy-oracle.sh
+deploy-to-server.sh
+上传到Oracle服务器.bat
+一键部署到Oracle.bat
 启动ngrok.bat
 启动临时密钥方案.bat
 get-ip-address.bat
 setup-mobile-access.bat
 配置手机访问.bat
 获取IP地址.bat
-
-# Git
-.git/
