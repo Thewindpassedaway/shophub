@@ -11,6 +11,12 @@
     {
       "src": "icon.png",
       "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
@@ -20,5 +26,7 @@
   "background_color": "#667eea",
   "theme_color": "#667eea",
   "description": "店铺信息管理系统",
-  "orientation": "portrait-primary"
+  "orientation": "portrait-primary",
+  "id": "shophub-pwa",
+  "categories": ["business", "productivity"]
 }
