@@ -2651,6 +2651,11 @@ class ShopManager {
 
   // 按等级导出
   async exportByGrade(grade) {
+    console.log('=== exportByGrade 开始 ===');
+    console.log('要导出的等级:', grade);
+    console.log('当前记录数量:', this.records.length);
+    console.log('当前店铺数量:', this.shops.length);
+    
     if (this.records.length === 0) {
       this.showToast('暂无记录可导出', 'warning');
       return;
@@ -2667,18 +2672,36 @@ class ShopManager {
     const statusFilter = document.getElementById('statusFilter')?.value;
     const gradeFilter = document.getElementById('gradeFilter')?.value;
     
+    console.log('页面筛选条件 - 月份:', monthFilter, '状态:', statusFilter, '等级:', gradeFilter);
+    
     // 如果当前已经按等级筛选了，且与要导出的等级一致，直接使用当前记录
     let recordsToExport = this.records;
     
     // 如果当前没有按等级筛选，或者筛选的等级与要导出的不同，需要重新过滤
     if (!gradeFilter || gradeFilter !== grade) {
-      const gradeShopIds = new Set(
-        this.shops.filter(s => s.grade === grade).map(s => s.id)
-      );
-      recordsToExport = this.records.filter(r => gradeShopIds.has(r.shopId));
+      console.log('需要重新过滤等级...');
+      const gradeShops = this.shops.filter(s => s.grade === grade);
+      console.log(`${grade}级店铺数量:`, gradeShops.length);
+      console.log(`${grade}级店铺列表:`, gradeShops.map(s => ({ id: s.id, name: s.name, grade: s.grade })));
+      
+      const gradeShopIds = new Set(gradeShops.map(s => s.id));
+      console.log(`${grade}级店铺ID集合:`, Array.from(gradeShopIds));
+      
+      recordsToExport = this.records.filter(r => {
+        const hasMatch = gradeShopIds.has(r.shopId);
+        if (!hasMatch) {
+          console.log(`记录 shopId=${r.shopId} 不在${grade}级店铺列表中`);
+        }
+        return hasMatch;
+      });
+      
+      console.log('过滤后的记录数量:', recordsToExport.length);
+    } else {
+      console.log('使用当前已筛选的记录');
     }
     
     if (recordsToExport.length === 0) {
+      console.log('没有找到记录,准备显示提示');
       this.showToast(`暂无${grade}级店铺的检查记录`, 'warning');
       return;
     }
@@ -2686,6 +2709,7 @@ class ShopManager {
     // 关闭下拉菜单
     this.closeExportDropdown();
     
+    console.log('开始生成Excel...');
     this.generateExcel(recordsToExport, `${grade}级店铺检查记录`);
   }
 
