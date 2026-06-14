@@ -2635,7 +2635,18 @@ class ShopManager {
     // 关闭下拉菜单
     this.closeExportDropdown();
     
-    this.generateExcel(this.records, '检查记录汇总');
+    // 获取当前页面的筛选条件
+    const gradeFilter = document.getElementById('gradeFilter')?.value;
+    
+    let recordsToExport = this.records;
+    let filename = '检查记录汇总';
+    
+    // 如果当前有等级筛选，在文件名中体现
+    if (gradeFilter) {
+      filename = `${gradeFilter}级店铺检查记录`;
+    }
+    
+    this.generateExcel(recordsToExport, filename);
   }
 
   // 按等级导出
@@ -2651,13 +2662,23 @@ class ShopManager {
       await this.loadShops();
     }
     
-    // 过滤出指定等级的店铺记录
-    const gradeShopIds = new Set(
-      this.shops.filter(s => s.grade === grade).map(s => s.id)
-    );
-    const filteredRecords = this.records.filter(r => gradeShopIds.has(r.shopId));
+    // 获取当前页面的筛选条件
+    const monthFilter = document.getElementById('monthFilter')?.value;
+    const statusFilter = document.getElementById('statusFilter')?.value;
+    const gradeFilter = document.getElementById('gradeFilter')?.value;
     
-    if (filteredRecords.length === 0) {
+    // 如果当前已经按等级筛选了，且与要导出的等级一致，直接使用当前记录
+    let recordsToExport = this.records;
+    
+    // 如果当前没有按等级筛选，或者筛选的等级与要导出的不同，需要重新过滤
+    if (!gradeFilter || gradeFilter !== grade) {
+      const gradeShopIds = new Set(
+        this.shops.filter(s => s.grade === grade).map(s => s.id)
+      );
+      recordsToExport = this.records.filter(r => gradeShopIds.has(r.shopId));
+    }
+    
+    if (recordsToExport.length === 0) {
       this.showToast(`暂无${grade}级店铺的检查记录`, 'warning');
       return;
     }
@@ -2665,7 +2686,7 @@ class ShopManager {
     // 关闭下拉菜单
     this.closeExportDropdown();
     
-    this.generateExcel(filteredRecords, `${grade}级店铺检查记录`);
+    this.generateExcel(recordsToExport, `${grade}级店铺检查记录`);
   }
 
   // 按月份导出（使用当前筛选的月份）
@@ -2685,7 +2706,16 @@ class ShopManager {
     this.closeExportDropdown();
     
     const [year, month] = monthFilter.split('-');
-    this.generateExcel(this.records, `${year}年${month}月检查记录`);
+    
+    // 获取当前页面的等级筛选条件
+    const gradeFilter = document.getElementById('gradeFilter')?.value;
+    
+    let filename = `${year}年${month}月检查记录`;
+    if (gradeFilter) {
+      filename = `${year}年${month}月${gradeFilter}级店铺检查记录`;
+    }
+    
+    this.generateExcel(this.records, filename);
   }
 
   // 切换导出下拉菜单
