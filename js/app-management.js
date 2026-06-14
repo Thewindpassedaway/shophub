@@ -2684,13 +2684,23 @@ class ShopManager {
       console.log(`${grade}级店铺数量:`, gradeShops.length);
       console.log(`${grade}级店铺列表:`, gradeShops.map(s => ({ id: s.id, name: s.name, grade: s.grade })));
       
-      const gradeShopIds = new Set(gradeShops.map(s => s.id));
-      console.log(`${grade}级店铺ID集合:`, Array.from(gradeShopIds));
+      const gradeShopIds = new Set(gradeShops.map(s => String(s.id)));
+      console.log(`${grade}级店铺ID集合(字符串):`, Array.from(gradeShopIds));
+      
+      // 打印所有记录的shopId和对应的店铺信息
+      console.log('\n=== 检查所有记录的shopId ===');
+      this.records.forEach((record, idx) => {
+        const shop = this.shops.find(s => String(s.id) === String(record.shopId));
+        if (idx < 5) { // 只打印前5条
+          console.log(`记录${idx + 1}: shopId=${record.shopId}, 找到店铺:`, shop ? { id: shop.id, name: shop.name, grade: shop.grade } : '未找到');
+        }
+      });
       
       recordsToExport = this.records.filter(r => {
-        const hasMatch = gradeShopIds.has(r.shopId);
+        const hasMatch = gradeShopIds.has(String(r.shopId));
         if (!hasMatch) {
-          console.log(`记录 shopId=${r.shopId} 不在${grade}级店铺列表中`);
+          const shop = this.shops.find(s => String(s.id) === String(r.shopId));
+          console.log(`记录 shopId=${r.shopId} 不在${grade}级店铺列表中, 实际店铺等级:`, shop ? shop.grade : '店铺不存在');
         }
         return hasMatch;
       });
