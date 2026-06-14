@@ -23,10 +23,14 @@
   ],
   "start_url": "/?utm_source=homescreen",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#667eea",
   "theme_color": "#667eea",
   "description": "店铺信息管理系统",
   "orientation": "portrait-primary",
   "id": "shophub-pwa",
-  "categories": ["business", "productivity"]
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "lang": "zh-CN"
 }

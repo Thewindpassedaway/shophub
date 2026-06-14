@@ -65,6 +65,17 @@ class ShopManager {
       console.log(' 未找到登录信息，显示登录页面');
       this.showLoginInterface();
     }
+    
+    // 添加全局点击事件，点击外部关闭导出下拉菜单
+    document.addEventListener('click', (e) => {
+      const exportDropdown = document.getElementById('exportDropdown');
+      const exportButton = e.target.closest('.btn-export-all');
+      const dropdownContent = e.target.closest('.dropdown-content');
+      
+      if (exportDropdown && !exportButton && !dropdownContent) {
+        this.closeExportDropdown();
+      }
+    });
   }
 
   // ==================== 登录功能 ====================
@@ -390,7 +401,7 @@ class ShopManager {
   showAdminInterface() {
     this.currentView = 'admin';
     const appContainer = document.getElementById('app-container');
-    const isAdmin = this.currentUser.role === 'admin';
+    const isAdmin = this.currentUser.role === 'admin' || this.currentUser.role === 'root';
 
     appContainer.innerHTML = `
       <div class="header admin-header">
@@ -695,7 +706,7 @@ class ShopManager {
 
   renderUserList() {
     const list = document.getElementById('userListContent');
-    const isAdmin = this.currentUser.role === 'admin';
+    const isAdmin = this.currentUser.role === 'admin' || this.currentUser.role === 'root';
 
     // 构建用户列表HTML
     let html = this.users.map(user => `
@@ -703,8 +714,8 @@ class ShopManager {
         <div class="user-info">
           <div class="user-name">${user.display_name || user.username}</div>
           <div class="user-username">@${user.username}</div>
-          <div class="user-role ${user.role === 'admin' ? 'role-admin' : 'role-user'}">
-            ${user.role === 'admin' ? '👑 管理员' : '👤 普通用户'}
+          <div class="user-role ${user.role === 'admin' || user.role === 'root' ? 'role-admin' : 'role-user'}">
+            ${user.role === 'admin' || user.role === 'root' ? ' 管理员' : '👤 普通用户'}
           </div>
         </div>
         <div class="user-actions">
@@ -1050,7 +1061,17 @@ class ShopManager {
     if (input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px;">`;
+        preview.innerHTML = `
+          <div class="photo-preview-container">
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px;">
+            <div class="upload-progress" style="display: none;">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <div class="progress-text">0%</div>
+            </div>
+          </div>
+        `;
       };
       reader.readAsDataURL(input.files[0]);
     }
@@ -1062,7 +1083,17 @@ class ShopManager {
     if (input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px;">`;
+        preview.innerHTML = `
+          <div class="photo-preview-container">
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px;">
+            <div class="upload-progress" style="display: none;">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <div class="progress-text">0%</div>
+            </div>
+          </div>
+        `;
       };
       reader.readAsDataURL(input.files[0]);
     }
@@ -1087,6 +1118,9 @@ class ShopManager {
     const checkTime = document.getElementById('checkTime').value;
     const inspector = document.getElementById('checkInspector').value.trim();
 
+    // 显示加载提示
+    this.showToast('正在提交，请稍候...', 'info', 999999);
+    
     // 收集所有问题
     const problems = [];
     const problemItems = document.querySelectorAll('.problem-item');
@@ -1136,10 +1170,15 @@ class ShopManager {
         return;
       }
       
-      // 处理问题照片（上传到服务器获取URL）
+      // 处理问题照片（上传到服务器获取URL）- 并行上传
       let photoUrl = null;
       if (photoInput.files && photoInput.files[0]) {
         photoUrl = await this.uploadImage(photoInput.files[0]);
+        if (!photoUrl) {
+          this.closeLoadingToast();
+          this.showToast(`问题 ${i + 1} 的照片上传失败`, 'error');
+          return;
+        }
       }
       
       // 构建问题对象
@@ -1167,10 +1206,15 @@ class ShopManager {
           return;
         }
         
-        // 处理整改照片（上传到服务器获取URL）
+        // 处理整改照片（上传到服务器获取URL）- 并行上传
         let rectPhotoUrl = null;
         if (rectPhotoInput.files && rectPhotoInput.files[0]) {
           rectPhotoUrl = await this.uploadImage(rectPhotoInput.files[0]);
+          if (!rectPhotoUrl) {
+            this.closeLoadingToast();
+            this.showToast(`问题 ${i + 1} 的整改照片上传失败`, 'error');
+            return;
+          }
         }
         
         problem.rectification = {
@@ -1187,7 +1231,9 @@ class ShopManager {
 
     // 允许零问题提交（店铺检查合格）
     if (problems.length === 0) {
+      this.closeLoadingToast();
       this.showConfirm('当前没有添加任何问题,\n确认店铺检查合格并提交吗?', async () => {
+        this.showToast('正在提交，请稍候...', 'info', 999999);
         await this.submitCheckRecord(shopId, serial, checkTime, inspector, problems);
       });
       return;
@@ -1215,17 +1261,30 @@ class ShopManager {
       const result = await response.json();
 
       if (result.success) {
+        this.closeLoadingToast();
         this.showToast('检查记录提交成功', 'success');
         this.closeCheckModal();
         // 切换到记录页面并加载数据
         this.showRecordsInterface();
       } else {
+        this.closeLoadingToast();
         this.showToast('提交失败: ' + result.message, 'error');
       }
     } catch (error) {
       console.error('提交检查记录失败:', error);
+      this.closeLoadingToast();
       this.showToast('提交失败', 'error');
     }
+  }
+
+  // 关闭加载提示
+  closeLoadingToast() {
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toast => {
+      if (toast.querySelector('.toast-message')?.textContent === '正在提交，请稍候...') {
+        toast.remove();
+      }
+    });
   }
 
   // 更新检查记录(修改/复查)
@@ -1289,10 +1348,15 @@ class ShopManager {
         return;
       }
       
-      // 处理问题照片（上传到服务器获取URL）
+      // 处理问题照片（上传到服务器获取URL）- 并行上传
       let photoUrl = null;
       if (photoInput.files && photoInput.files[0]) {
         photoUrl = await this.uploadImage(photoInput.files[0]);
+        if (!photoUrl) {
+          this.closeLoadingToast();
+          this.showToast(`问题 ${i + 1} 的照片上传失败`, 'error');
+          return;
+        }
       }
       
       // 构建问题对象
@@ -1320,10 +1384,15 @@ class ShopManager {
           return;
         }
         
-        // 处理整改照片（上传到服务器获取URL）
+        // 处理整改照片（上传到服务器获取URL）- 并行上传
         let rectPhotoUrl = null;
         if (rectPhotoInput.files && rectPhotoInput.files[0]) {
           rectPhotoUrl = await this.uploadImage(rectPhotoInput.files[0]);
+          if (!rectPhotoUrl) {
+            this.closeLoadingToast();
+            this.showToast(`问题 ${i + 1} 的整改照片上传失败`, 'error');
+            return;
+          }
         }
         
         problem.rectification = {
@@ -1391,10 +1460,14 @@ class ShopManager {
   }
 
   // 上传图片到服务器
+  // 上传图片（带压缩）
   async uploadImage(file) {
     try {
+      // 压缩图片
+      const compressedFile = await this.compressImage(file);
+      
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', compressedFile);
       
       const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
@@ -1414,6 +1487,45 @@ class ShopManager {
       this.showToast('图片上传失败', 'error');
       return null;
     }
+  }
+
+  // 压缩图片
+  compressImage(file, maxWidth = 1920, quality = 0.7) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // 计算新尺寸
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // 转换为Blob
+          canvas.toBlob((blob) => {
+            // 创建新的File对象
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          }, 'image/jpeg', quality);
+        };
+      };
+    });
   }
 
   async showManageGrade(grade) {
@@ -1911,10 +2023,28 @@ class ShopManager {
             <option value="pending">未整改</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label>店铺等级:</label>
+          <select id="gradeFilter" class="filter-select" onchange="window.shopManager.filterRecords()">
+            <option value="">全部</option>
+            <option value="A">A级</option>
+            <option value="B">B级</option>
+            <option value="C">C级</option>
+          </select>
+        </div>
       </div>
 
       <div class="records-actions">
-        <button class="btn-export-all" onclick="window.shopManager.exportAllRecords()">📥 批量导出</button>
+        <div class="export-dropdown">
+          <button class="btn-export-all" onclick="window.shopManager.toggleExportDropdown()">📥 批量导出 ▼</button>
+          <div id="exportDropdown" class="dropdown-content" style="display: none;">
+            <button onclick="window.shopManager.exportAllRecords()">全部导出</button>
+            <button onclick="window.shopManager.exportByGrade('A')">导出A级店铺</button>
+            <button onclick="window.shopManager.exportByGrade('B')">导出B级店铺</button>
+            <button onclick="window.shopManager.exportByGrade('C')">导出C级店铺</button>
+            <button onclick="window.shopManager.exportByMonth()">导出当前月份</button>
+          </div>
+        </div>
         <button class="btn-clear-records" onclick="window.shopManager.showClearRecordsModal()">🗑️ 清空所有记录</button>
       </div>
 
@@ -2003,6 +2133,7 @@ class ShopManager {
     try {
       const monthFilter = document.getElementById('monthFilter')?.value;
       const statusFilter = document.getElementById('statusFilter')?.value;
+      const gradeFilter = document.getElementById('gradeFilter')?.value;
       
       const params = new URLSearchParams();
       if (monthFilter) {
@@ -2019,6 +2150,15 @@ class ShopManager {
 
       if (result.success) {
         this.records = result.data || [];
+        
+        // 如果选择了店铺等级，进行前端过滤
+        if (gradeFilter && this.shops.length > 0) {
+          const gradeShopIds = new Set(
+            this.shops.filter(s => s.grade === gradeFilter).map(s => s.id)
+          );
+          this.records = this.records.filter(r => gradeShopIds.has(r.shopId));
+        }
+        
         if (this.currentRecordTab === 'checked') {
           this.renderRecords(this.records);
         } else {
@@ -2492,7 +2632,76 @@ class ShopManager {
       await this.loadShops();
     }
     
+    // 关闭下拉菜单
+    this.closeExportDropdown();
+    
     this.generateExcel(this.records, '检查记录汇总');
+  }
+
+  // 按等级导出
+  async exportByGrade(grade) {
+    if (this.records.length === 0) {
+      this.showToast('暂无记录可导出', 'warning');
+      return;
+    }
+    
+    // 确保店铺数据已加载
+    if (this.shops.length === 0) {
+      console.log('导出前加载店铺数据...');
+      await this.loadShops();
+    }
+    
+    // 过滤出指定等级的店铺记录
+    const gradeShopIds = new Set(
+      this.shops.filter(s => s.grade === grade).map(s => s.id)
+    );
+    const filteredRecords = this.records.filter(r => gradeShopIds.has(r.shopId));
+    
+    if (filteredRecords.length === 0) {
+      this.showToast(`暂无${grade}级店铺的检查记录`, 'warning');
+      return;
+    }
+    
+    // 关闭下拉菜单
+    this.closeExportDropdown();
+    
+    this.generateExcel(filteredRecords, `${grade}级店铺检查记录`);
+  }
+
+  // 按月份导出（使用当前筛选的月份）
+  async exportByMonth() {
+    if (this.records.length === 0) {
+      this.showToast('暂无记录可导出', 'warning');
+      return;
+    }
+    
+    const monthFilter = document.getElementById('monthFilter')?.value;
+    if (!monthFilter) {
+      this.showToast('请先选择要导出的月份', 'warning');
+      return;
+    }
+    
+    // 关闭下拉菜单
+    this.closeExportDropdown();
+    
+    const [year, month] = monthFilter.split('-');
+    this.generateExcel(this.records, `${year}年${month}月检查记录`);
+  }
+
+  // 切换导出下拉菜单
+  toggleExportDropdown() {
+    const dropdown = document.getElementById('exportDropdown');
+    if (dropdown) {
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+  }
+
+  // 关闭导出下拉菜单
+  closeExportDropdown() {
+    const dropdown = document.getElementById('exportDropdown');
+    if (dropdown) {
+      dropdown.style.display = 'none';
+    }
   }
 
   // 导出单条记录
@@ -2537,9 +2746,11 @@ class ShopManager {
       records.forEach((record) => {
         const problems = record.problems || [];
         
-        // 根据 shopId 查找店铺名称
+        // 根据 shopId 查找店铺信息
         const shop = this.shops.find(s => s.id == record.shopId);
         const shopName = shop ? shop.name : '未知店铺';
+        const shopNumber = shop ? shop.number : '';
+        const shopGrade = shop ? shop.grade : '';
         
         // 修复检查时间格式
         const checkDate = new Date(record.checkTime);
@@ -2556,7 +2767,9 @@ class ShopManager {
         if (problems.length === 0) {
           excelData.push({
             '序号': globalIndex,
+            '店铺编号': shopNumber,
             '店铺名称': shopName,
+            '店铺等级': shopGrade,
             '问题描述': '',
             '隐患位置': '',
             '风险等级': '',
@@ -2603,7 +2816,9 @@ class ShopManager {
             
             excelData.push({
               '序号': globalIndex,
+              '店铺编号': shopNumber,
               '店铺名称': shopName,
+              '店铺等级': shopGrade,
               '问题描述': problem.description || '',
               '隐患位置': problem.location || '',
               '风险等级': riskLevel,
@@ -2632,7 +2847,9 @@ class ShopManager {
       // 设置列宽
       ws['!cols'] = [
         { wch: 8 },   // 序号
+        { wch: 15 },  // 店铺编号
         { wch: 20 },  // 店铺名称
+        { wch: 10 },  // 店铺等级
         { wch: 30 },  // 问题描述
         { wch: 20 },  // 隐患位置
         { wch: 10 },  // 风险等级

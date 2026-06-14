@@ -1,0 +1,4 @@
+cd "C:\Users\L2604\IdeaProjects\untitled1\merchant collection"
+git add icon.png site.webmanifest
+git commit -m "Fix: 将icon.png转换为真正的PNG格式"
+git push

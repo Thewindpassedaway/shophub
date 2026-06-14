@@ -532,6 +532,66 @@ body {
   padding: 0 20px 20px;
 }
 
+/* 导出下拉菜单样式 */
+.export-dropdown {
+  position: relative;
+  flex: 1;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  margin-top: 8px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-content button {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  background: white;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-content button:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content button:hover {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+  padding-left: 24px;
+}
+
+.dropdown-content button:active {
+  background: var(--primary-color);
+  color: white;
+}
+
 .btn-export-all,
 .btn-clear-records {
   flex: 1;
