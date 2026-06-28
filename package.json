@@ -17,6 +17,7 @@
   "dependencies": {
     "@cloudbase/js-sdk": "^1.8.4",
     "bcrypt": "^6.0.0",
+    "cos-nodejs-sdk-v5": "^2.14.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

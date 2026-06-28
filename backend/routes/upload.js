@@ -3,6 +3,18 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const COS = require('cos-nodejs-sdk-v5');
+require('dotenv').config();
+
+// 配置腾讯云 COS
+const cos = new COS({
+  SecretId: process.env.TENCENT_SECRET_ID,
+  SecretKey: process.env.TENCENT_SECRET_KEY,
+});
+
+const COS_BUCKET = process.env.COS_BUCKET || 'shophub-1309231456';
+const COS_REGION = process.env.COS_REGION || 'ap-guangzhou';
+const COS_PROTOCOL = process.env.COS_PROTOCOL || 'https';
 
 // 配置存储
 const storage = multer.diskStorage({
@@ -42,7 +54,7 @@ const upload = multer({
 
 /**
  * POST /api/upload
- * 上传图片文件
+ * 上传图片文件到腾讯云 COS
  */
 router.post('/', upload.single('image'), (req, res) => {
   try {
@@ -53,19 +65,43 @@ router.post('/', upload.single('image'), (req, res) => {
       });
     }
 
-    // 返回图片URL（相对路径）
-    const imageUrl = `/uploads/${req.file.filename}`;
+    // 读取本地文件
+    const filePath = req.file.path;
+    const fileName = req.file.filename;
+    const fileContent = fs.readFileSync(filePath);
 
-    res.json({
-      success: true,
-      data: {
-        filename: req.file.filename,
-        originalname: req.file.originalname,
-        size: req.file.size,
-        url: imageUrl,
-        mimetype: req.file.mimetype
-      },
-      message: '图片上传成功'
+    // 上传到腾讯云 COS
+    cos.putObject({
+      Bucket: COS_BUCKET,
+      Region: COS_REGION,
+      Key: `uploads/${fileName}`, // 存储路径
+      Body: fileContent,
+    }, (err, data) => {
+      // 删除本地临时文件
+      fs.unlinkSync(filePath);
+
+      if (err) {
+        console.error('COS 上传失败:', err);
+        return res.status(500).json({
+          success: false,
+          message: '图片上传到云端失败: ' + err.message
+        });
+      }
+
+      // 生成完整的 COS URL
+      const imageUrl = `${COS_PROTOCOL}://${COS_BUCKET}.cos.${COS_REGION}.myqcloud.com/uploads/${fileName}`;
+
+      res.json({
+        success: true,
+        data: {
+          filename: fileName,
+          originalname: req.file.originalname,
+          size: req.file.size,
+          url: imageUrl, // 返回完整的 COS URL
+          mimetype: req.file.mimetype
+        },
+        message: '图片上传成功'
+      });
     });
 
   } catch (error) {
