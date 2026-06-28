@@ -1312,6 +1312,142 @@
       border-left: 4px solid #FF9800;
     }
 
+    /* 查看记录详情样式 */
+    .view-record-content {
+      padding: 10px;
+    }
+
+    .view-section {
+      margin-bottom: 25px;
+    }
+
+    .view-section h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+      font-weight: 600;
+    }
+
+    .view-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .view-info-item {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .view-info-item label {
+      font-size: 12px;
+      color: #888;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .view-value {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .view-problems-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .view-problem-item {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      border-left: 4px solid #667eea;
+    }
+
+    .view-problem-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .view-problem-number {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .view-problem-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .view-detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .view-detail-row label {
+      font-size: 13px;
+      color: #666;
+      min-width: 100px;
+      font-weight: 500;
+    }
+
+    .view-detail-content {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .view-photo {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .view-photo:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* 图片预览模态框 */
+    .modal-image {
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    .image-preview-body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: #f5f5f5;
+      min-height: 300px;
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: calc(90vh - 150px);
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
     /* Toast 提示样式 */
     .toast-container {
       position: fixed;

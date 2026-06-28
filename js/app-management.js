@@ -1489,6 +1489,29 @@ class ShopManager {
     }
   }
 
+  // 获取完整的图片URL（处理相对路径）
+  getFullImageUrl(imageUrl) {
+    if (!imageUrl) return '';
+    
+    // 如果已经是完整URL，直接返回
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // 如果是相对路径（以 /uploads/ 开头），转换为完整URL
+    if (imageUrl.startsWith('/uploads/')) {
+      let serverUrl = window.location.origin;
+      // 处理 file:// 协议或空的情况
+      if (!serverUrl || serverUrl === 'null' || serverUrl === 'file://') {
+        serverUrl = 'http://localhost:3000';
+      }
+      return serverUrl + imageUrl;
+    }
+    
+    // 其他情况，尝试拼接
+    return imageUrl;
+  }
+
   // 压缩图片
   compressImage(file, maxWidth = 1920, quality = 0.7) {
     return new Promise((resolve) => {
@@ -2385,7 +2408,7 @@ class ShopManager {
                   <div class="view-detail-row">
                     <label>问题照片：</label>
                     <div class="view-detail-content">
-                      ${problem.photoUrl ? `<img src="${problem.photoUrl}" alt="问题照片" class="view-photo" onclick="window.shopManager.previewImage(decodeURIComponent('${encodeURIComponent(problem.photoUrl)}'))">` : '无'}
+                      ${problem.photoUrl ? `<img src="${window.shopManager.getFullImageUrl(problem.photoUrl)}" alt="问题照片" class="view-photo" onclick="window.shopManager.previewImage('${problem.photoUrl}')">` : '无'}
                     </div>
                   </div>
                   ${problem.deadline ? `
@@ -2410,7 +2433,7 @@ class ShopManager {
                   <div class="view-detail-row">
                     <label>整改照片：</label>
                     <div class="view-detail-content">
-                      ${problem.rectification.photoUrl ? `<img src="${problem.rectification.photoUrl}" alt="整改照片" class="view-photo" onclick="window.shopManager.previewImage(decodeURIComponent('${encodeURIComponent(problem.rectification.photoUrl)}'))">` : '无'}
+                      ${problem.rectification.photoUrl ? `<img src="${window.shopManager.getFullImageUrl(problem.rectification.photoUrl)}" alt="整改照片" class="view-photo" onclick="window.shopManager.previewImage('${problem.rectification.photoUrl}')">` : '无'}
                     </div>
                   </div>
                   <div class="view-detail-row">
